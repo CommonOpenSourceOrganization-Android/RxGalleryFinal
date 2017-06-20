@@ -30,7 +30,7 @@ public class PermissionCheckUtils {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
                     alertBuilder.setCancelable(false);
-                    alertBuilder.setTitle("授权对话框");
+                    alertBuilder.setTitle("获取权限说明");
                     alertBuilder.setMessage(permissionDesc);
                     alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode));
                     AlertDialog alert = alertBuilder.create();
@@ -63,6 +63,11 @@ public class PermissionCheckUtils {
     @TargetApi(16)
     public static boolean checkWriteExternalPermission(Activity activity, String permissionDesc, int requestCode) {
         return checkPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionDesc, requestCode);
+    }
+
+    @TargetApi(16)
+    public static boolean checkCameraPermission(Activity activity, String permissionDesc, int requestCode) {
+        return checkPermission(activity, Manifest.permission.CAMERA, permissionDesc, requestCode);
     }
 
 }

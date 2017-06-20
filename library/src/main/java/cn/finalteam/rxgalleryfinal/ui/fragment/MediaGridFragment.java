@@ -357,10 +357,18 @@ public class MediaGridFragment extends BaseFragment implements MediaGridView, Re
                 .subscribeWith(new RxBusSubscriber<RequestStorageReadAccessPermissionEvent>() {
                     @Override
                     protected void onEvent(RequestStorageReadAccessPermissionEvent requestStorageReadAccessPermissionEvent) throws Exception {
-                        if (requestStorageReadAccessPermissionEvent.isSuccess()) {
-                            mMediaGridPresenter.getMediaList(mBucketId, mPage, LIMIT);
+                        if (requestStorageReadAccessPermissionEvent.getType() == 0) {
+                            if (requestStorageReadAccessPermissionEvent.isSuccess()) {
+                                mMediaGridPresenter.getMediaList(mBucketId, mPage, LIMIT);
+                            } else {
+                                getActivity().finish();
+                            }
                         } else {
-                            getActivity().finish();
+                            if (requestStorageReadAccessPermissionEvent.isSuccess()) {
+                                openCamera(getActivity());
+                            } else {
+                                Toast.makeText(getActivity(), R.string.gallery_camera_permission_failure, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
@@ -476,11 +484,19 @@ public class MediaGridFragment extends BaseFragment implements MediaGridView, Re
     public void onObItemClick(int position) {
         MediaBean mediaBean = mMediaBeanList.get(position);
         if (mediaBean.getId() == Integer.MIN_VALUE) {
-
             if (!CameraUtils.hasCamera(getContext())) {
                 Toast.makeText(getContext(), R.string.gallery_device_no_camera_tips, Toast.LENGTH_SHORT).show();
                 return;
             }
+            String requestStorageAccessPermissionTips = ThemeUtils.resolveString(getContext(),
+                    R.attr.gallery_request_storage_access_permission_tips,
+                    R.string.gallery_default_request_camera_permission_tips);
+            boolean hasCameraPermission = PermissionCheckUtils.checkCameraPermission(getActivity(),
+                    requestStorageAccessPermissionTips, MediaActivity.REQUEST_CAMERA_PERMISSION);
+            if (!hasCameraPermission) {
+                return;
+            }
+
             //打开
             openCamera(getActivity());
 
@@ -550,7 +566,7 @@ public class MediaGridFragment extends BaseFragment implements MediaGridView, Re
             bundle.putInt(UCrop.Options.EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, uCropToolbarWidgetColor);
             bundle.putParcelable(UCrop.EXTRA_INPUT_URI, inputUri);
             int bk = FileUtils.existImageDir(inputUri.getPath());
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Logger.i("--->" + inputUri.getPath());
             Logger.i("--->" + outUri.getPath());
             ArrayList<AspectRatio> aspectRatioList = new ArrayList<>();

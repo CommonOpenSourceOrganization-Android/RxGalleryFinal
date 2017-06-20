@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class MediaActivity extends BaseActivity implements ActivityFragmentView 
 
     public static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
     public static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
+    public static final int REQUEST_CAMERA_PERMISSION = 103;
 
     private static final String EXTRA_CHECKED_LIST = EXTRA_PREFIX + ".CheckedList";
     private static final String EXTRA_SELECTED_INDEX = EXTRA_PREFIX + ".SelectedIndex";
@@ -407,16 +409,25 @@ public class MediaActivity extends BaseActivity implements ActivityFragmentView 
         switch (requestCode) {
             case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    RxBus.getDefault().post(new RequestStorageReadAccessPermissionEvent(true));
+                    RxBus.getDefault().post(new RequestStorageReadAccessPermissionEvent(true, 0));
                 } else {
+                    Toast.makeText(this, R.string.gallery_storage_access_permission_failure, Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
             case REQUEST_STORAGE_WRITE_ACCESS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    RxBus.getDefault().post(new RequestStorageReadAccessPermissionEvent(true));
+                    RxBus.getDefault().post(new RequestStorageReadAccessPermissionEvent(true, 0));
                 } else {
+                    Toast.makeText(this, R.string.gallery_storage_write_permission_failure, Toast.LENGTH_SHORT).show();
                     finish();
+                }
+                break;
+            case REQUEST_CAMERA_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    RxBus.getDefault().post(new RequestStorageReadAccessPermissionEvent(true, 1));
+                } else {
+                    Toast.makeText(this, R.string.gallery_camera_permission_failure, Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
